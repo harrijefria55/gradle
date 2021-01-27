@@ -1592,7 +1592,8 @@ class DefaultServiceRegistryTest extends Specification {
         int value;
 
         public BigDecimal create() {
-            return BigDecimal.valueOf(value++)
+            def returnValue = BigDecimal.valueOf(value++)
+            return returnValue
         }
     }
 
