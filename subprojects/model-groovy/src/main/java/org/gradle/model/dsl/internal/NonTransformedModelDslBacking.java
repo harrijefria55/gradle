@@ -20,7 +20,6 @@ import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MissingMethodException;
 import groovy.lang.MissingPropertyException;
-import javax.annotation.concurrent.NotThreadSafe;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.internal.Actions;
@@ -37,6 +36,8 @@ import org.gradle.model.internal.core.rule.describe.SimpleModelRuleDescriptor;
 import org.gradle.model.internal.registry.ModelRegistry;
 import org.gradle.model.internal.type.ModelType;
 import org.gradle.util.ClosureBackedAction;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 import static org.gradle.model.internal.core.DefaultNodeInitializerRegistry.DEFAULT_REFERENCE;
 import static org.gradle.model.internal.core.NodeInitializerContext.forType;
@@ -121,6 +122,10 @@ public class NonTransformedModelDslBacking extends GroovyObjectSupport {
                 Closure<?> closure = (Closure) args[0];
                 getChildPath(name).registerConfigurationAction(closure);
                 return null;
+            } else if (args.length == 2 && args[0] instanceof String && args[1] instanceof Closure) {
+                Closure<?> closure = (Closure) args[1];
+                getChildPath(args[0].toString()).registerConfigurationAction(closure);
+                return null;
             } else if (args.length == 2 && args[0] instanceof Class && args[1] instanceof Closure) {
                 Class<?> clazz = (Class<?>) args[0];
                 Closure<?> closure = (Closure<?>) args[1];
@@ -131,6 +136,13 @@ public class NonTransformedModelDslBacking extends GroovyObjectSupport {
                 getChildPath(name).register(clazz, Actions.doNothing());
                 return null;
             } else {
+//                System.out.println(args[0]);
+//                System.out.println(args[1]);
+//                System.out.println(args[0].getClass());
+                System.out.println("name = " + name);
+                System.out.println("args[0] = " + args[0]);
+                System.out.println(args[1].getClass().getSuperclass());
+                System.out.println(args[1].getClass().getSuperclass().getSuperclass());
                 throw new MissingMethodException(name, getClass(), args);
             }
         }

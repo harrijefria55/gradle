@@ -116,7 +116,6 @@ public class PackageListGenerator extends DefaultTask {
             @Override
             public void doExecute(final BufferedWriter bufferedWriter) throws Exception {
                 Trie packages = collectPackages();
-                System.out.println("packages = " + packages);
                 packages.dump(false, new ErroringAction<String>() {
                     @Override
                     public void doExecute(String s) throws Exception {
