@@ -22,7 +22,7 @@ import groovy.lang.GroovyResourceLoader;
 import groovy.lang.Script;
 import org.codehaus.groovy.ast.ClassNode;
 import org.codehaus.groovy.ast.stmt.Statement;
-import org.codehaus.groovy.classgen.Verifier;
+import org.codehaus.groovy.classgen.GeneratorContext;
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilationUnit;
 import org.codehaus.groovy.control.CompilerConfiguration;
@@ -274,7 +274,7 @@ public class DefaultScriptCompilationHandler implements ScriptCompilationHandler
             try {
                 final Field classgen = CompilationUnit.class.getDeclaredField("classgen");
                 classgen.setAccessible(true);
-                final IPrimaryClassNodeOperation realClassgen = (IPrimaryClassNodeOperation) classgen.get(this);
+                final PrimaryClassNodeOperation realClassgen = (PrimaryClassNodeOperation) classgen.get(this);
                 classgen.set(this, new PrimaryClassNodeOperation() {
 
                     @Override
