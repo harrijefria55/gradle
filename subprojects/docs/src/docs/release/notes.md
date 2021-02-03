@@ -102,6 +102,11 @@ This has two benefits when an empty `buildSrc` directory is detected:
 - `:buildSrc:*` tasks will not be needlessly executed.
 - The empty `buildSrc.jar` will not be added to the buildscript class path, avoiding cache misses that this can cause.
 
+### Improved support for libraries with standard JVM and Android variants
+
+The Java plugins now recognizes the [`org.gradle.jvm.environment` attribute](userguide/variant_attributes.html#sub:jvm_default_attributes) during dependency resolution.
+This allows libraries to clearly distinguish variants optimized for `standard-jvm` and `android`.
+
 <!-- 
 
 ================== TEMPLATE ==============================
