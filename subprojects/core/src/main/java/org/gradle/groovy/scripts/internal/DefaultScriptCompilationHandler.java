@@ -22,12 +22,15 @@ import groovy.lang.GroovyResourceLoader;
 import groovy.lang.Script;
 import org.codehaus.groovy.ast.ClassNode;
 import org.codehaus.groovy.ast.stmt.Statement;
+import org.codehaus.groovy.classgen.GeneratorContext;
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilationUnit;
+import org.codehaus.groovy.control.CompilePhase;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.MultipleCompilationErrorsException;
 import org.codehaus.groovy.control.Phases;
 import org.codehaus.groovy.control.SourceUnit;
+import org.codehaus.groovy.control.customizers.CompilationCustomizer;
 import org.codehaus.groovy.control.messages.SyntaxErrorMessage;
 import org.codehaus.groovy.syntax.SyntaxException;
 import org.gradle.api.Action;
@@ -117,6 +120,12 @@ public class DefaultScriptCompilationHandler implements ScriptCompilationHandler
             protected CompilationUnit createCompilationUnit(CompilerConfiguration compilerConfiguration,
                                                             CodeSource codeSource) {
 
+                compilerConfiguration.addCompilationCustomizers(new CompilationCustomizer(CompilePhase.CLASS_GENERATION) {
+                    @Override
+                    public void call(SourceUnit source, GeneratorContext context, ClassNode classNode) throws CompilationFailedException {
+                        customVerifier.execute(classNode);
+                    }
+                });
                 CompilationUnit compilationUnit = new CustomCompilationUnit(compilerConfiguration, codeSource, customVerifier, this);
 
                 if (transformer != null) {
@@ -266,10 +275,17 @@ public class DefaultScriptCompilationHandler implements ScriptCompilationHandler
         }
     }
 
+    @SuppressWarnings("deprecation")
     private class CustomCompilationUnit extends CompilationUnit {
         public CustomCompilationUnit(CompilerConfiguration compilerConfiguration, CodeSource codeSource, final Action<? super ClassNode> customVerifier, GroovyClassLoader groovyClassLoader) {
             super(compilerConfiguration, codeSource, groovyClassLoader);
-            setClassgenCallback((classVisitor, node) -> customVerifier.execute(node));
+//            setClassgenCallback((classVisitor, node) -> customVerifier.execute(node));
+//            addPhaseOperation(new PrimaryClassNodeOperation() {
+//                @Override
+//                public void call(SourceUnit source, GeneratorContext context, ClassNode classNode) throws CompilationFailedException {
+//                    customVerifier.execute(classNode);
+//                }
+//            }, Phases.CANONICALIZATION);
             this.resolveVisitor = new GradleResolveVisitor(this, simpleNameToFQN);
         }
     }
