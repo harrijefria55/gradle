@@ -517,6 +517,9 @@ public class DefaultNamedDomainObjectCollection<T> extends DefaultDomainObjectCo
 
         @Override
         public boolean hasProperty(String name) {
+            if (avoidConfiguration()) {
+                return getNames().contains(name);
+            }
             return findByName(name) != null;
         }
 
@@ -539,7 +542,12 @@ public class DefaultNamedDomainObjectCollection<T> extends DefaultDomainObjectCo
         @Override
         public DynamicInvokeResult tryInvokeMethod(String name, Object... arguments) {
             if (isConfigureMethod(name, arguments)) {
-                return DynamicInvokeResult.found(ConfigureUtil.configure((Closure) arguments[0], getByName(name)));
+                Closure<T> argument = Cast.uncheckedNonnullCast(arguments[0]);
+                if (avoidConfiguration()) {
+                    return DynamicInvokeResult.found(named(name, ConfigureUtil.configureUsing(argument)));
+                } else {
+                    return DynamicInvokeResult.found(ConfigureUtil.configure(argument, getByName(name)));
+                }
             }
             return DynamicInvokeResult.notFound();
         }
@@ -547,6 +555,10 @@ public class DefaultNamedDomainObjectCollection<T> extends DefaultDomainObjectCo
         private boolean isConfigureMethod(String name, Object... arguments) {
             return (arguments.length == 1 && arguments[0] instanceof Closure) && hasProperty(name);
         }
+    }
+
+    protected boolean avoidConfiguration() {
+        return false;
     }
 
     protected interface Index<T> {
